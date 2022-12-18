@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Author;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -30,5 +31,18 @@ class AuthorTest extends TestCase
         $response->assertStatus(200);
 
         $response->assertSeeTextInOrder(['Dashboard', 'Author', 'Book']);
+    }
+
+    public function test_show_page_exists()
+    {
+        $user = User::factory()->create();
+
+        $author = Author::factory()->create();
+
+        $response = $this->actingAs($user)->get("/authors/{$author->id}");
+
+        $response->assertStatus(200);
+
+        $response->assertSeeTextInOrder([$author->first_name, $author->last_name]);
     }
 }
