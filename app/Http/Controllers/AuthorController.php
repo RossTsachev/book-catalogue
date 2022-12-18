@@ -27,6 +27,7 @@ class AuthorController extends Controller
      */
     public function create()
     {
+        return view('authors.form')->with('author', new Author());
     }
 
     /**
@@ -36,6 +37,11 @@ class AuthorController extends Controller
      */
     public function store(StoreAuthorRequest $request)
     {
+        $author = new Author($request->validated());
+
+        $author->save();
+
+        return redirect()->route('authors.show', ['author' => $author]);
     }
 
     /**

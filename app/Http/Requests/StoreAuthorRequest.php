@@ -13,7 +13,7 @@ class StoreAuthorRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class StoreAuthorRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'first_name' => ['required', 'alpha'],
+            'last_name' => ['required', 'alpha'],
         ];
     }
 }

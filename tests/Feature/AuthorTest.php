@@ -45,4 +45,29 @@ class AuthorTest extends TestCase
 
         $response->assertSeeTextInOrder([$author->first_name, $author->last_name]);
     }
+
+    public function test_create_author_form_exists()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/authors/create');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_store_author()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/authors', [
+            'first_name' => 'Bilbo',
+            'last_name' => 'Baggins',
+        ]);
+
+        $this->assertDatabaseHas('authors', ['first_name' => 'Bilbo', 'last_name' => 'Baggins']);
+
+        $latestAuthor = Author::orderBy('id', 'desc')->first();
+
+        $response->assertRedirectToRoute('authors.show', ['author' => $latestAuthor]);
+    }
 }
