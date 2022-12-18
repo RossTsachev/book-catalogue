@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Tests\TestCase;
 
 /**
@@ -11,10 +12,12 @@ use Tests\TestCase;
  */
 class BookTest extends TestCase
 {
-    public function test_index_page_exists()
+    public function test_index_page_redirects_to_dashboard()
     {
-        $response = $this->get('/books');
+        $user = User::factory()->create();
 
-        $response->assertStatus(200);
+        $response = $this->actingAs($user)->get('/books');
+
+        $response->assertRedirectToRoute('dashboard');
     }
 }

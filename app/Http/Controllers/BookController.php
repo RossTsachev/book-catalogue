@@ -15,7 +15,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        //
+        return redirect(route('dashboard'));
     }
 
     /**
@@ -25,62 +25,50 @@ class BookController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreBookRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreBookRequest $request)
     {
-        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Book  $book
      * @return \Illuminate\Http\Response
      */
     public function show(Book $book)
     {
-        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Book  $book
      * @return \Illuminate\Http\Response
      */
     public function edit(Book $book)
     {
-        //
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateBookRequest  $request
-     * @param  \App\Models\Book  $book
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
-        //
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Book  $book
      * @return \Illuminate\Http\Response
      */
     public function destroy(Book $book)
     {
-        //
     }
 }
