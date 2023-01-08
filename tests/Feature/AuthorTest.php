@@ -22,6 +22,14 @@ class AuthorTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_base_page_is_only_accessed_if_authenticated()
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(302);
+        $response->assertRedirect('login');
+    }
+
     public function test_index_page_exists()
     {
         $user = User::factory()->create();
