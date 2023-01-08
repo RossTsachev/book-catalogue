@@ -71,12 +71,14 @@ class AuthorTest extends TestCase
             'last_name' => 'Baggins',
         ];
 
-        $response = $this->actingAs($this->user)->post('/authors', $author);
+        $this->assertDatabaseMissing('authors', $author);
 
-        $this->assertDatabaseHas('authors', $author);
+        $response = $this->actingAs($this->user)->post('/authors', $author);
 
         $latestAuthor = Author::orderBy('id', 'desc')->first();
 
         $response->assertRedirectToRoute('authors.show', ['author' => $latestAuthor]);
+
+        $this->assertDatabaseHas('authors', $author);
     }
 }
