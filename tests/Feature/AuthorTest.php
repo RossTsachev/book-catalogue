@@ -66,12 +66,14 @@ class AuthorTest extends TestCase
 
     public function test_store_author()
     {
-        $response = $this->actingAs($this->user)->post('/authors', [
+        $author = [
             'first_name' => 'Bilbo',
             'last_name' => 'Baggins',
-        ]);
+        ];
 
-        $this->assertDatabaseHas('authors', ['first_name' => 'Bilbo', 'last_name' => 'Baggins']);
+        $response = $this->actingAs($this->user)->post('/authors', $author);
+
+        $this->assertDatabaseHas('authors', $author);
 
         $latestAuthor = Author::orderBy('id', 'desc')->first();
 
