@@ -13,11 +13,18 @@ use Tests\TestCase;
  */
 class AuthorTest extends TestCase
 {
+    private User $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = User::factory()->create();
+    }
+
     public function test_base_page_exists()
     {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->get('/');
+        $response = $this->actingAs($this->user)->get('/');
 
         $response->assertStatus(200);
     }
@@ -32,9 +39,7 @@ class AuthorTest extends TestCase
 
     public function test_index_page_exists()
     {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->get('/authors');
+        $response = $this->actingAs($this->user)->get('/authors');
 
         $response->assertStatus(200);
 
@@ -43,11 +48,9 @@ class AuthorTest extends TestCase
 
     public function test_show_page_exists()
     {
-        $user = User::factory()->create();
-
         $author = Author::factory()->create();
 
-        $response = $this->actingAs($user)->get("/authors/{$author->id}");
+        $response = $this->actingAs($this->user)->get("/authors/{$author->id}");
 
         $response->assertStatus(200);
 
@@ -56,18 +59,14 @@ class AuthorTest extends TestCase
 
     public function test_create_author_form_exists()
     {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->get('/authors/create');
+        $response = $this->actingAs($this->user)->get('/authors/create');
 
         $response->assertStatus(200);
     }
 
     public function test_store_author()
     {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->post('/authors', [
+        $response = $this->actingAs($this->user)->post('/authors', [
             'first_name' => 'Bilbo',
             'last_name' => 'Baggins',
         ]);
