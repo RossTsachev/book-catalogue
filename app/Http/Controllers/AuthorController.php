@@ -27,7 +27,10 @@ class AuthorController extends Controller
      */
     public function create()
     {
-        return view('authors.form')->with('author', new Author());
+        return view('authors.form')
+            ->with('author', new Author())
+            ->with('formMethod', 'POST')
+            ->with('formAction', route('authors.store'));
     }
 
     /**
@@ -61,6 +64,10 @@ class AuthorController extends Controller
      */
     public function edit(Author $author)
     {
+        return view('authors.form')
+        ->with('author', $author)
+        ->with('formMethod', 'PUT')
+        ->with('formAction', route('authors.update', ['author' => $author]));
     }
 
     /**
@@ -70,6 +77,9 @@ class AuthorController extends Controller
      */
     public function update(UpdateAuthorRequest $request, Author $author)
     {
+        $author->update($request->validated());
+
+        return redirect()->route('authors.show', ['author' => $author]);
     }
 
     /**

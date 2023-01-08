@@ -4,8 +4,9 @@
     </x-slot>
 
     <x-index.main-content>
-        <form method="POST" action="{{ route('authors.store') }}">
+        <form method="POST" action="{{ $formAction }}">
             @csrf
+            @method($formMethod)
 
             <!-- First Name -->
             <x-form.text-input
@@ -20,7 +21,7 @@
             <x-form.text-input
                 name="last_name"
                 label="Last Name"
-                :value="$author->first_name"
+                :value="$author->last_name"
                 required
             />
 

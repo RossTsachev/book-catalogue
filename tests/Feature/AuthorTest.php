@@ -53,7 +53,6 @@ class AuthorTest extends TestCase
         $response = $this->actingAs($this->user)->get("/authors/{$author->id}");
 
         $response->assertStatus(200);
-
         $response->assertSeeTextInOrder([$author->first_name, $author->last_name]);
     }
 
@@ -64,21 +63,73 @@ class AuthorTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_store_author_validations_fail_when_fields_empty()
+    {
+        $author = [
+            'first_name' => '',
+            'last_name' => '',
+        ];
+
+        $response = $this->actingAs($this->user)->post('/authors', $author);
+
+        $response->assertInvalid(['first_name', 'last_name']);
+    }
+
+    public function test_store_author_validations_fail_when_fields_not_alfa()
+    {
+        $author = [
+            'first_name' => '123',
+            'last_name' => '123',
+        ];
+
+        $response = $this->actingAs($this->user)->post('/authors', $author);
+
+        $response->assertInvalid(['first_name', 'last_name']);
+    }
+
     public function test_store_author()
     {
         $author = [
             'first_name' => 'Bilbo',
             'last_name' => 'Baggins',
         ];
-
         $this->assertDatabaseMissing('authors', $author);
 
         $response = $this->actingAs($this->user)->post('/authors', $author);
 
         $latestAuthor = Author::orderBy('id', 'desc')->first();
-
         $response->assertRedirectToRoute('authors.show', ['author' => $latestAuthor]);
-
         $this->assertDatabaseHas('authors', $author);
+    }
+
+    public function test_update_author_form_exists()
+    {
+        $author = Author::factory()->create();
+
+        $response = $this->actingAs($this->user)->get("/authors/{$author->id}/edit");
+
+        $response->assertStatus(200);
+        $response->assertSee($author->first_name);
+        $response->assertSee($author->last_name);
+        $response->assertViewHas('author', $author);
+    }
+
+    public function test_update_author()
+    {
+        $originalAuthorData = [
+            'first_name' => 'Frodo',
+            'last_name' => 'Baggins',
+        ];
+        $editedAuthorData = [
+            'first_name' => 'Freddy',
+            'last_name' => 'Boffin',
+        ];
+        $author = Author::create($originalAuthorData);
+
+        $response = $this->actingAs($this->user)->put("/authors/{$author->id}", $editedAuthorData);
+
+        $response->assertRedirectToRoute('authors.show', ['author' => $author]);
+        $this->assertDatabaseHas('authors', $editedAuthorData);
+        $this->assertDatabaseMissing('authors', $originalAuthorData);
     }
 }
