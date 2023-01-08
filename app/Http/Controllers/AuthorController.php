@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
+use App\Models\Author;
 use App\Http\Requests\StoreAuthorRequest;
 use App\Http\Requests\UpdateAuthorRequest;
-use App\Models\Author;
 
 class AuthorController extends Controller
 {
@@ -89,5 +90,17 @@ class AuthorController extends Controller
      */
     public function destroy(Author $author)
     {
+        $bookIds = $author->books->pluck('id');
+        $author->delete();
+
+        // remove all books without author
+        $books = Book::with('authors')->whereIn('id', $bookIds)->get();
+        foreach ($books as $book) {
+            if (!$book->authors->count()) {
+                $book->delete();
+            }
+        }
+
+        return redirect()->route('dashboard');
     }
 }

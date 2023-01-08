@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Author;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -13,6 +14,8 @@ use Tests\TestCase;
  */
 class AuthorTest extends TestCase
 {
+    use RefreshDatabase;
+
     private User $user;
 
     protected function setUp(): void
@@ -131,5 +134,18 @@ class AuthorTest extends TestCase
         $response->assertRedirectToRoute('authors.show', ['author' => $author]);
         $this->assertDatabaseHas('authors', $editedAuthorData);
         $this->assertDatabaseMissing('authors', $originalAuthorData);
+    }
+
+    public function test_delete_author()
+    {
+        $author = Author::factory()->hasBooks(3)->create();
+
+        $response = $this->actingAs($this->user)->delete("/authors/{$author->id}");
+
+        $response->assertStatus(302);
+        $response->assertRedirectToRoute('dashboard');
+        $this->assertDatabaseMissing('authors', $author->toArray());
+        $this->assertDatabaseCount('authors', 0);
+        $this->assertDatabaseCount('books', 0);
     }
 }
