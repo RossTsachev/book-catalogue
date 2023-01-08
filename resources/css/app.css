@@ -1,3 +1,11 @@
+@import '/node_modules/tom-select/dist/css/tom-select.default.css';
+@import '/node_modules/flowbite/dist/flowbite.css';
+@import '/node_modules/flowbite-datepicker/dist/css/datepicker.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.datepicker.active.hidden {
+    display: none;
+}
