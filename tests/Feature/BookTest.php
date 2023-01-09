@@ -6,6 +6,8 @@ use App\Models\Author;
 use App\Models\Book;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
@@ -40,7 +42,6 @@ class BookTest extends TestCase
         $response = $this->actingAs($this->user)->get("/books/{$book->id}");
 
         $response->assertStatus(200);
-
         $response->assertSeeTextInOrder([$book->name, $book->description]);
     }
 
@@ -84,7 +85,6 @@ class BookTest extends TestCase
     public function test_store_book()
     {
         $author = Author::factory()->create();
-
         $book = [
             'name' => 'The Hobbit',
             'description' => 'Great book for children',
@@ -155,5 +155,82 @@ class BookTest extends TestCase
         $response->assertRedirectToRoute('dashboard');
         $this->assertDatabaseMissing('books', $book->toArray());
         $this->assertDatabaseCount('books', 0);
+    }
+
+    public function test_cover_is_uploaded()
+    {
+        Storage::fake('local');
+        $file = UploadedFile::fake()->image('cover.jpg');
+        $author = Author::factory()->create();
+        $book = [
+            'name' => 'The Hobbit',
+            'description' => 'Great book for children',
+            'published_at' => '1937-09-21',
+            'is_signed_by_author' => 1,
+            'is_fiction' => 1,
+        ];
+
+        $this->actingAs($this->user)->post(
+            '/books',
+            $book + ['authors' => [$author->id], 'cover' => $file]
+        );
+
+        $latestBook = Book::orderBy('id', 'desc')->first();
+        $this->assertEquals('book_covers/'.$file->hashName(), $latestBook->cover);
+        Storage::disk('local')->assertExists('book_covers/'.$file->hashName());
+    }
+
+    public function test_book_cover_is_removed()
+    {
+        Storage::fake('local');
+        $file = UploadedFile::fake()->image('cover.jpg');
+        $author = Author::factory()->create();
+        $bookData = [
+            'name' => 'The Hobbit',
+            'description' => 'Great book for children',
+            'published_at' => '1937-09-21',
+            'is_signed_by_author' => 1,
+            'is_fiction' => 1,
+        ];
+        $book = Book::factory()->create([
+            'cover' => 'book_covers/'.$file->hashName(),
+        ]);
+
+        $this->actingAs($this->user)->put(
+            "/books/{$book->id}",
+            $bookData + ['authors' => [$author->id], 'delete-cover' => 1]
+        );
+
+        $updatedBook = Book::find($book->id);
+        $this->assertNull($updatedBook->cover);
+        Storage::disk('local')->assertMissing('book_covers/'.$file->hashName());
+    }
+
+    public function test_book_cover_is_changed()
+    {
+        Storage::fake('local');
+        $oldFile = UploadedFile::fake()->image('cover.jpg');
+        $newFile = UploadedFile::fake()->image('new-cover.jpg');
+        $author = Author::factory()->create();
+        $bookData = [
+            'name' => 'The Hobbit',
+            'description' => 'Great book for children',
+            'published_at' => '1937-09-21',
+            'is_signed_by_author' => 1,
+            'is_fiction' => 1,
+        ];
+        $book = Book::factory()->create([
+            'cover' => 'book_covers/'.$oldFile->hashName(),
+        ]);
+
+        $this->actingAs($this->user)->put(
+            "/books/{$book->id}",
+            $bookData + ['authors' => [$author->id], 'cover' => $newFile]
+        );
+
+        $updatedBook = Book::find($book->id);
+        $this->assertEquals('book_covers/'.$newFile->hashName(), $updatedBook->cover);
+        Storage::disk('local')->assertMissing('book_covers/'.$oldFile->hashName());
+        Storage::disk('local')->assertExists('book_covers/'.$newFile->hashName());
     }
 }

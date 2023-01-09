@@ -89,7 +89,11 @@ class BookController extends Controller
             Storage::delete($book->cover);
         }
 
-        $book->cover = $this->getCoverName($request->cover, $book->cover);
+        $book->cover = $this->getCoverName(
+            $request->cover,
+            $book->cover,
+            $request->input('delete-cover')
+        );
 
         $book->save();
 
@@ -110,8 +114,12 @@ class BookController extends Controller
         return redirect()->route('dashboard');
     }
 
-    private function getCoverName($coverInput, $oldInput = null)
+    private function getCoverName($coverInput, $oldInput = null, $justDeleted = false)
     {
+        if ($justDeleted) {
+            return null;
+        }
+
         return ($coverInput)
             ? request()->file('cover')->store('book_covers')
             : $oldInput;

@@ -45,7 +45,6 @@ class AuthorTest extends TestCase
         $response = $this->actingAs($this->user)->get('/authors');
 
         $response->assertStatus(200);
-
         $response->assertSeeTextInOrder(['Dashboard', 'Author', 'Book']);
     }
 
