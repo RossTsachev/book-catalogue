@@ -18,4 +18,9 @@ class Author extends Model
     {
         return $this->belongsToMany(Book::class)->withTimestamps();
     }
+
+    protected function getDataForSelectAttribute()
+    {
+        return $this->first_name.' '.$this->last_name;
+    }
 }

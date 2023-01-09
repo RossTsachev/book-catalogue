@@ -22,4 +22,24 @@ class Book extends Model
     {
         return $this->belongsToMany(Author::class)->withTimestamps();
     }
+
+    public function getFictionRadioData()
+    {
+        $radioData = collect();
+        $itemYes = (object) [
+            'checked' => (bool) $this->is_fiction,
+            'value' => 1,
+            'label' => 'Yes',
+        ];
+        $radioData->push($itemYes);
+
+        $itemNo = (object) [
+            'checked' => (bool) !$this->is_fiction,
+            'value' => 0,
+            'label' => 'No',
+        ];
+        $radioData->push($itemNo);
+
+        return $radioData;
+    }
 }

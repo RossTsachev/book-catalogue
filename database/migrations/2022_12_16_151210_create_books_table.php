@@ -15,7 +15,7 @@ return new class() extends Migration {
             $table->string('name', 50);
             $table->text('description');
             $table->string('cover')->nullable();
-            $table->timestamp('published_at');
+            $table->date('published_at');
             $table->boolean('is_signed_by_author');
             $table->boolean('is_fiction');
             $table->timestamps();

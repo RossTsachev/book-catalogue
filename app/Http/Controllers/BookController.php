@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use App\Models\Author;
 use App\Models\Book;
+use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -25,6 +27,11 @@ class BookController extends Controller
      */
     public function create()
     {
+        return view('books.form')
+            ->with('book', new Book())
+            ->with('authors', Author::all())
+            ->with('formMethod', 'POST')
+            ->with('formAction', route('books.store'));
     }
 
     /**
@@ -34,6 +41,15 @@ class BookController extends Controller
      */
     public function store(StoreBookRequest $request)
     {
+        $book = new Book($request->validated());
+
+        $book->cover = $this->getCoverName($request->cover);
+
+        $book->save();
+
+        $book->authors()->sync($request->authors);
+
+        return redirect()->route('books.show', ['book' => $book]);
     }
 
     /**
@@ -53,6 +69,11 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
+        return view('books.form')
+            ->with('book', $book)
+            ->with('authors', Author::all())
+            ->with('formMethod', 'PUT')
+            ->with('formAction', route('books.update', ['book' => $book]));
     }
 
     /**
@@ -62,6 +83,19 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
+        $book->update($request->validated());
+
+        if ($request->input('delete-cover') || $request->cover) {
+            Storage::delete($book->cover);
+        }
+
+        $book->cover = $this->getCoverName($request->cover, $book->cover);
+
+        $book->save();
+
+        $book->authors()->sync($request->authors);
+
+        return redirect()->route('books.show', ['book' => $book]);
     }
 
     /**
@@ -71,5 +105,12 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
+    }
+
+    private function getCoverName($coverInput, $oldInput = null)
+    {
+        return ($coverInput)
+            ? request()->file('cover')->store('book_covers')
+            : $oldInput;
     }
 }
