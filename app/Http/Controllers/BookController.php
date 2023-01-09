@@ -105,6 +105,9 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
+        $book->delete();
+
+        return redirect()->route('dashboard');
     }
 
     private function getCoverName($coverInput, $oldInput = null)

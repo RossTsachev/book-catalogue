@@ -144,4 +144,16 @@ class BookTest extends TestCase
         $this->assertDatabaseHas('books', $editedBookData);
         $this->assertDatabaseMissing('books', $originalBookData);
     }
+
+    public function test_delete_book()
+    {
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($this->user)->delete("/books/{$book->id}");
+
+        $response->assertStatus(302);
+        $response->assertRedirectToRoute('dashboard');
+        $this->assertDatabaseMissing('books', $book->toArray());
+        $this->assertDatabaseCount('books', 0);
+    }
 }
